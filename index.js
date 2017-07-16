@@ -1,32 +1,40 @@
 var Bot = require('slackbots');
 
+// Internal modules
 var botTools = require('./lib/bot_tools.js');
 var fplTools = require('./lib/fpl_tools.js');
 
-var settings = {
-  token: process.env.FOOTBOT_SLACK_API_TOKEN
-};
+// Settings
+var settings = { token: process.env.FOOTBOT_SLACK_API_TOKEN };
+var leagueId = process.env.FOOTBOT_LEAGUE_ID;
 
+// Bot setup
 var bot = new Bot(settings);
+var params = { as_user: true };
 
-var params = {
-  as_user: true
-};
-
-// Bot doing stuff
-
+// Bot action
 bot.on('start', function() {
-  bot.postMessageToChannel('test', 'Did you see that ludicrous display last night?', params);
+  bot.postMessageToChannel('test',
+                           'BACK OF THE NET! :soccer: Footbot is up and running for league ' + leagueId,
+                           params);
+  bot.postMessageToChannel('test',
+                           'Did you see that ludicrous display last night?',
+                           params);
 });
 
 bot.on('message', function(message) {
   if (botTools.notMyMessage(bot.self.id, message)) {
-    if (botTools.isPlayerRequest(message)) {
-      var playerId = botTools.getPlayerId(message);
-      fplTools.getPlayerData(playerId);
-      bot.postMessageToChannel('TODO: post output');
-    } else {
-      bot.postMessageToChannel('test', "The thing about Arsenal is they always try to walk it in", params);
+    // Check if it's a request for league table data
+    if (botTools.isLeagueRequest(message)) {
+      fplTools.getLeagueData(leagueId);
+      bot.postMessageToChannel('test',
+                               'TODO: post output',
+                               params);
+    // Check if it's an IT Crowd reference
+    } else if (botTools.isItCrowdJoke(message)) {
+      bot.postMessageToChannel('test',
+                               "The thing about Arsenal is they always try to walk it in",
+                               params);
     }
   }
 });
