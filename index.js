@@ -24,17 +24,29 @@ bot.on('start', function() {
 
 bot.on('message', function(message) {
   if (botTools.notMyMessage(bot.self.id, message)) {
+
     // Check if it's a request for league table data
     if (botTools.isLeagueRequest(message)) {
-      fplTools.getLeagueData(leagueId);
-      bot.postMessageToChannel('test',
-                               'TODO: post output',
-                               params);
+      // Confirm league ID is valid before checking
+      if (botTools.validLeague(leagueId)) {
+        fplTools.getLeagueData(leagueId, postMultipleLines);
+      } else {
+        bot.postMessageToChannel('test',
+                                ("'" + leagueId + "' is not a valid league ID"),
+                                params);
+      }
     // Check if it's an IT Crowd reference
     } else if (botTools.isItCrowdJoke(message)) {
       bot.postMessageToChannel('test',
-                               "The thing about Arsenal is they always try to walk it in",
+                               'The thing about Arsenal is they always try to walk it in',
                                params);
     }
   }
 });
+
+function postMultipleLines(data) {
+  var message = data.join("\n");
+  bot.postMessageToChannel('test',
+                           message,
+                           params);
+}
