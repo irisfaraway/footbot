@@ -14,11 +14,11 @@ var params = { as_user: true };
 
 // Bot action
 bot.on('start', function() {
-  bot.postMessageToChannel('test',
-                           'BACK OF THE NET! :soccer: Footbot is up and running for league ' + leagueId,
-                           params);
-  bot.postMessageToChannel('test',
-                           'Did you see that ludicrous display last night?',
+  var message = 'BACK OF THE NET! :soccer: Footbot is up and running for league ' + leagueId + '.' +
+                "\nTo get the latest league table, just say `post league` or `post the league`." +
+                "\n Did you see that ludicrous display last night?";
+  bot.postMessageToChannel('football',
+                           message,
                            params);
 });
 
@@ -31,13 +31,13 @@ bot.on('message', function(message) {
       if (botTools.validLeague(leagueId)) {
         fplTools.getLeagueData(leagueId, postMultipleLines);
       } else {
-        bot.postMessageToChannel('test',
+        bot.postMessageToChannel('football',
                                 ("'" + leagueId + "' is not a valid league ID"),
                                 params);
       }
     // Check if it's an IT Crowd reference
     } else if (botTools.isItCrowdJoke(message)) {
-      bot.postMessageToChannel('test',
+      bot.postMessageToChannel('football',
                                'The thing about Arsenal is they always try to walk it in',
                                params);
     }
@@ -46,7 +46,7 @@ bot.on('message', function(message) {
 
 function postMultipleLines(data) {
   var message = data.join("\n");
-  bot.postMessageToChannel('test',
+  bot.postMessageToChannel('football',
                            message,
                            params);
 }
