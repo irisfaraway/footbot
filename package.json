@@ -15,6 +15,7 @@
   "license": "MIT",
   "homepage": "https://github.com/irisfaraway/footbot#readme",
   "dependencies": {
+    "request": "2.81.0",
     "slackbots": "1.0.2"
   }
 }

@@ -1,37 +1,52 @@
 var Bot = require('slackbots');
 
-var settings = {
-  token: process.env.FOOTBOT_SLACK_API_TOKEN
-};
+// Internal modules
+var botTools = require('./lib/bot_tools.js');
+var fplTools = require('./lib/fpl_tools.js');
 
+// Settings
+var settings = { token: process.env.FOOTBOT_SLACK_API_TOKEN };
+var leagueId = process.env.FOOTBOT_LEAGUE_ID;
+
+// Bot setup
 var bot = new Bot(settings);
+var params = { as_user: true };
 
-var params = {
-  as_user: true
-}
-
-// Checks on messages
-
-// Make sure the message is a message (really)
-function isMessage(message) {
-  return (message.type === 'message');
-}
-
-// Make sure the message isn't from the bot itself
-function notMyMessage(botId, message) {
-  if (isMessage(message)) {
-    return (message.user !== botId);
-  };
-};
-
-// Bot doing stuff
-
+// Bot action
 bot.on('start', function() {
-  bot.postMessageToChannel('test', 'Did you see that ludicrous display last night?', params);
+  var message = 'BACK OF THE NET! :soccer: Footbot is up and running for league ' + leagueId + '.' +
+                "\nTo get the latest league table, just say `post league` or `post the league`." +
+                "\n Did you see that ludicrous display last night?";
+  bot.postMessageToChannel('football',
+                           message,
+                           params);
 });
 
 bot.on('message', function(message) {
-  if (notMyMessage(bot.self.id, message)) {
-    bot.postMessageToChannel('test', "The thing about Arsenal is they always try to walk it in", params);
+  if (botTools.notMyMessage(bot.self.id, message)) {
+
+    // Check if it's a request for league table data
+    if (botTools.isLeagueRequest(message)) {
+      // Confirm league ID is valid before checking
+      if (botTools.validLeague(leagueId)) {
+        fplTools.getLeagueData(leagueId, postMultipleLines);
+      } else {
+        bot.postMessageToChannel('football',
+                                ("'" + leagueId + "' is not a valid league ID"),
+                                params);
+      }
+    // Check if it's an IT Crowd reference
+    } else if (botTools.isItCrowdJoke(message)) {
+      bot.postMessageToChannel('football',
+                               'The thing about Arsenal is they always try to walk it in',
+                               params);
+    }
   }
 });
+
+function postMultipleLines(data) {
+  var message = data.join("\n");
+  bot.postMessageToChannel('football',
+                           message,
+                           params);
+}
