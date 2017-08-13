@@ -13,15 +13,6 @@ var bot = new Bot(settings);
 var params = { as_user: true };
 
 // Bot action
-bot.on('start', function() {
-  var message = 'BACK OF THE NET! :soccer: Footbot is up and running for league ' + leagueId + '.' +
-                "\nTo get the latest league table, just say `post league` or `post the league`." +
-                "\n Did you see that ludicrous display last night?";
-  bot.postMessageToChannel('football',
-                           message,
-                           params);
-});
-
 bot.on('message', function(message) {
   if (botTools.notMyMessage(bot.self.id, message)) {
 
